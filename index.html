@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ching Hui Qing — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0ede8;
+    --muted: #888890;
+    --accent: #c8f060;
+    --accent2: #60d4f0;
+    --accent3: #f060a8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, opacity 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor.big { width: 40px; height: 40px; opacity: 0.4; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.25rem 3rem;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 3rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: -0.02em;
+    transform: translateY(-50%);
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(100px, 18vw, 260px);
+    color: rgba(255,255,255,0.025);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(52px, 9vw, 110px);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.35s forwards;
+  }
+
+  .hero-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-bottom {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    font-weight: 400;
+  }
+
+  .hero-stats {
+    display: flex; gap: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .stat { text-align: right; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--accent);
+    line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.2s forwards;
+  }
+
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 6rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    letter-spacing: -0.5px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── RESEARCH CARDS ── */
+  .research-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .research-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .research-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .research-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+  .research-card:hover::before { opacity: 1; }
+
+  .card-period {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .award-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin: 3px 3px 3px 0;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .award-tag.linked {
+    cursor: pointer;
+    border-color: rgba(200, 240, 96, 0.25);
+    color: var(--accent);
+  }
+
+  .award-tag.linked:hover {
+    background: rgba(200, 240, 96, 0.1);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .award-tag .rank {
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .award-tag.linked .rank {
+    background: var(--accent);
+  }
+
+  .award-tag.silver .rank { background: var(--accent2); }
+  .award-tag.bronze .rank { background: #f0a060; color: var(--bg); }
+
+  /* ── ACHIEVEMENTS TABS ── */
+  .tabs {
+    display: flex; gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .tab-btn:not(.active):hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .achievement-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .achievement-row {
+    display: flex; align-items: center; gap: 1.5rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .achievement-row.has-link:hover {
+    border-color: var(--border-hover);
+    background: var(--bg3);
+    transform: translateX(4px);
+  }
+
+  .ach-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .ach-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ach-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ach-rank.gold { background: rgba(200,240,96,0.15); color: var(--accent); border: 1px solid rgba(200,240,96,0.3); }
+  .ach-rank.silver { background: rgba(96,212,240,0.15); color: var(--accent2); border: 1px solid rgba(96,212,240,0.3); }
+  .ach-rank.bronze { background: rgba(240,160,96,0.15); color: #f0a060; border: 1px solid rgba(240,160,96,0.3); }
+  .ach-rank.rep { background: rgba(240,96,168,0.15); color: var(--accent3); border: 1px solid rgba(240,96,168,0.3); }
+
+  .ach-link-icon {
+    font-size: 14px;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .achievement-row.has-link:hover .ach-link-icon { opacity: 1; }
+
+  /* ── SKILLS ── */
+  .skills-section { padding: 6rem 3rem; border-top: 1px solid var(--border); }
+  .skills-section > * { max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+  }
+
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.25s;
+  }
+
+  .skill-card:hover {
+    border-color: var(--accent);
+    background: var(--bg3);
+    transform: translateY(-3px);
+  }
+
+  .skill-icon { font-size: 26px; margin-bottom: 0.5rem; display: block; }
+  .skill-name { font-size: 13px; font-weight: 600; }
+
+  /* ── COCURR ── */
+  .cocurr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .cocurr-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.25s;
+  }
+
+  .cocurr-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+
+  .cocurr-icon { font-size: 24px; margin-bottom: 0.75rem; display: block; }
+  .cocurr-role { font-size: 14px; font-weight: 700; margin-bottom: 0.4rem; }
+  .cocurr-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── CONTACT ── */
+  .contact-section {
+    padding: 6rem 3rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .contact-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 60px;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+  }
+
+  .contact-title em { font-style: italic; color: var(--accent); }
+
+  .contact-sub { color: var(--muted); margin-bottom: 2.5rem; font-size: 15px; }
+
+  .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+  .contact-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .contact-link.primary {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .contact-link.primary:hover { background: #d4f570; transform: translateY(-2px); }
+
+  .contact-link.secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .contact-link.secondary:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 0 1.5rem 4rem; }
+    .hero-bottom { flex-direction: column; align-items: flex-start; }
+    .hero-stats { gap: 1.5rem; }
+    section { padding: 4rem 1.5rem; }
+    .research-grid { grid-template-columns: 1fr; }
+    .cocurr-grid { grid-template-columns: 1fr 1fr; }
+    .contact-title { font-size: 36px; }
+    .skills-section { padding: 4rem 1.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .cocurr-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<nav>
+  <div class="nav-logo">C<span>H</span>Q</div>
+  <div class="nav-links">
+    <a href="#research">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#achievements">Achievements</a>
+    <a href="#skills">Skills</a>
+    <a href="#activities">Activities</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-text">CHQ</div>
+  <div class="hero-eyebrow">Portfolio 2026</div>
+  <div class="hero-name">Ching<br><em>Hui Qing</em></div>
+  <div class="hero-bottom">
+    <p class="hero-desc">
+      Incoming Electrical Engineering student at Tsinghua University. Competitive programmer, AI/ML engineer, and robotics researcher — EGOI Malaysian representative in 2025 &amp; 2026.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">3</span>
+        <span class="stat-label">Projects</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">15+</span>
+        <span class="stat-label">Awards Won</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">EGOI</span>
+        <span class="stat-label">'25 &amp; '26 Rep.</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</div>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Projects</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="research-grid">
+
+    <div class="research-card reveal">
+      <div class="card-period">May 2026 – Present · Tsinghua FuRoC</div>
+      <div class="card-title">MagicBot Z1 — RL Locomotion for 12-DOF Quadruped Robot</div>
+      <div class="card-desc">Developing and training reinforcement learning locomotion control policies for the MagicBot Z1, a 12-degree-of-freedom quadruped robot. Uses Proximal Policy Optimization (PPO) in NVIDIA Isaac Lab and validates robustness via sim-to-sim transfer in MuJoCo.</div>
+      <div>
+        <a class="award-tag linked" href="https://github.com/Thu-FuRoc/FuRoC-MagicBot-Z1" target="_blank" title="View on GitHub">
+          <span class="rank">⚙ GitHub</span> Thu-FuRoc / FuRoC-MagicBot-Z1
+        </a>
+        <span class="award-tag">
+          <span class="rank">PPO</span> RL Policy
+        </span>
+        <span class="award-tag">
+          <span class="rank">Isaac Lab</span> NVIDIA
+        </span>
+        <span class="award-tag">
+          <span class="rank">MuJoCo</span> Sim-to-Sim
+        </span>
+      </div>
+    </div>
+    <div class="research-card reveal">
+      <div class="card-period">Dec 2023 – Jun 2024</div>
+      <div class="card-title">Environmental Impact &amp; Social Perception Analysis of the Lynas Rare Earth Plant</div>
+      <div class="card-desc">A study on the environmental impact and public perceptions of radioactive pollutants from lanthanide concentrate production at the Lynas plant — combining experiments, social interviews, and opinion surveys.</div>
+      <div>
+        <!-- Replace # with actual links to your certificates/results -->
+        <a class="award-tag linked" href="#" target="_blank" title="Click to view certificate/result">
+          <span class="rank">🥇 1st</span> Global SS Student Inquiry Competition
+        </a>
+        <a class="award-tag linked" href="#" target="_blank" title="Click to view certificate/result">
+          <span class="rank">🥇 1st</span> Science Exploration Fair
+        </a>
+        <span class="award-tag bronze">
+          <span class="rank" style="background:#f0a060">2nd</span> Hin Hua Inquiry Challenge
+        </span>
+      </div>
+    </div>
+
+    <div class="research-card reveal" style="transition-delay: 0.15s">
+      <div class="card-period">Mar 2023 – Dec 2024</div>
+      <div class="card-title">Development of a Low-Cost Water Quality Biosensor Based on Photobacterium</div>
+      <div class="card-desc">Utilizing simple, inexpensive devices to conduct water quality testing by detecting the luminescence mechanism of Photobacterium with a light sensor.</div>
+      <div>
+        <!-- Replace # with actual links to your certificates/results -->
+        <span class="award-tag">
+          <span class="rank">Top 12</span> Global SS Inquiry Competition
+        </span>
+        <span class="award-tag">
+          <span class="rank">Top 11</span> Science Exploration Fair
+        </span>
+        <a class="award-tag linked" href="#" target="_blank">
+          <span class="rank">🥇 1st</span> Hin Hua Inquiry Challenge
+        </a>
+        <span class="award-tag bronze">
+          <span class="rank" style="background:#f0a060;color:#0a0a0f">Bronze</span> KL Engineering Science Fair
+        </span>
+        <span class="award-tag">
+          <span class="rank">4th</span> Vitrox Tech 4 Good
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK EXPERIENCE -->
+<section id="experience" style="border-top: 1px solid var(--border);">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Experience</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="research-grid">
+    <div class="research-card reveal">
+      <div class="card-period">Nov 2025 – Present · AutoCount Malaysia</div>
+      <div class="card-title">Software Developer</div>
+      <div class="card-desc">Built production AI systems for AutoCount Accounting V2 — including a RAG chatbot for user guidance, an AI-powered OCR pipeline for financial document extraction, and Python data pipelines that processed 1,000+ documents for automated knowledge-base generation. Also designed and prototyped LLM workflows and system architectures to evaluate technical feasibility prior to deployment.</div>
+      <div>
+        <span class="award-tag"><span class="rank">RAG</span> Chatbot</span>
+        <span class="award-tag"><span class="rank">OCR</span> AI Pipeline</span>
+        <span class="award-tag"><span class="rank">LLM</span> Workflows</span>
+        <span class="award-tag"><span class="rank">1,000+</span> Docs Processed</span>
+      </div>
+    </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements" style="border-top: 1px solid var(--border);">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Achievements</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="tabs reveal">
+    <button class="tab-btn active" data-tab="programming">Programming</button>
+    <button class="tab-btn" data-tab="math">Mathematics</button>
+    <button class="tab-btn" data-tab="other">Other</button>
+  </div>
+
+  <!-- Programming tab -->
+  <div class="tab-panel active" id="tab-programming">
+    <div class="achievement-list">
+      <!-- Add your real certificate links in href="" -->
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2025, 2026</span>
+        <span class="ach-name">European Girls' Olympiad in Informatics (EGOI)</span>
+        <span class="ach-rank rep">🇲🇾 Malaysian Rep.</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2025</span>
+        <span class="ach-name">Malaysia Computing Olympiad (MCO)</span>
+        <span class="ach-rank gold">Top 30</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2024</span>
+        <span class="ach-name">National Secondary School Programming Contest</span>
+        <span class="ach-rank bronze">3rd Place</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+      <div class="achievement-row">
+        <span class="ach-year">2021–2024</span>
+        <span class="ach-name">USA Computing Olympiad (USACO)</span>
+        <span class="ach-rank silver">Silver</span>
+      </div>
+      <div class="achievement-row">
+        <span class="ach-year">2021–2024</span>
+        <span class="ach-name">Malaysia Computing Challenge (MCC)</span>
+        <span class="ach-rank gold">Gold '21, Silver '22–23, Bronze '24</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Math tab -->
+  <div class="tab-panel" id="tab-math">
+    <div class="achievement-list">
+      <div class="achievement-row">
+        <span class="ach-year">2020–2024</span>
+        <span class="ach-name">Chen Jing Run Mathematics Competition</span>
+        <span class="ach-rank gold">Dist. '20,'22,'24 · High Dist. '21,'23</span>
+      </div>
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2024</span>
+        <span class="ach-name">Australian Mathematics Competition</span>
+        <span class="ach-rank silver">Distinction</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Other tab -->
+  <div class="tab-panel" id="tab-other">
+    <div class="achievement-list">
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2025</span>
+        <span class="ach-name">NSSPC Hackathon – AI for the SDGs</span>
+        <span class="ach-rank silver">2nd Place</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+      <a class="achievement-row has-link" href="#" target="_blank">
+        <span class="ach-year">2024</span>
+        <span class="ach-name">TSMC Cup – Creative Expression Contest</span>
+        <span class="ach-rank bronze">3rd Place</span>
+        <span class="ach-link-icon">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="skills-section" style="padding: 6rem 3rem; border-top: 1px solid var(--border);">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Tech Skills</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card reveal"><span class="skill-icon">🐍</span><span class="skill-name">Python</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.05s"><span class="skill-icon">⚡</span><span class="skill-name">C++</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.3s"><span class="skill-icon">🤖</span><span class="skill-name">LLM Integration</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.33s"><span class="skill-icon">🔍</span><span class="skill-name">RAG Systems</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.35s"><span class="skill-icon">🗄️</span><span class="skill-name">PostgreSQL</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.4s"><span class="skill-icon">🔌</span><span class="skill-name">Arduino</span></div>
+    <div class="skill-card reveal" style="transition-delay:0.45s"><span class="skill-icon">📐</span><span class="skill-name">Fusion 360</span></div>
+  </div>
+</section>
+
+<!-- CO-CURRICULAR -->
+<section id="activities" style="border-top: 1px solid var(--border);">
+  <div class="section-header reveal">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Activities</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="cocurr-grid">
+    <div class="cocurr-card reveal">
+      <span class="cocurr-icon">💻</span>
+      <div class="cocurr-role">Computer Society — Committee</div>
+      <div class="cocurr-desc">Planned courses and activities for ~50 members weekly. Organised technical workshops and coding sessions.</div>
+    </div>
+    <div class="cocurr-card reveal" style="transition-delay:0.1s">
+      <span class="cocurr-icon">🎪</span>
+      <div class="cocurr-role">School Charity Fair — President</div>
+      <div class="cocurr-desc">Led the entire organisation and management of preparation work for the school charity fair.</div>
+    </div>
+    <div class="cocurr-card reveal" style="transition-delay:0.2s">
+      <span class="cocurr-icon">🎻</span>
+      <div class="cocurr-role">Chinese Orchestra — Erhu Lead</div>
+      <div class="cocurr-desc">Leader of Erhu section, performed in school events. Present assistant instructor at Leh Yeo Chinese Orchestra.</div>
+    </div>
+    <div class="cocurr-card reveal" style="transition-delay:0.3s">
+      <span class="cocurr-icon">🔬</span>
+      <div class="cocurr-role">Maker's Program — Teaching Asst.</div>
+      <div class="cocurr-desc">Junior Maker's "Little Scientist" program teaching assistant.</div>
+    </div>
+    <div class="cocurr-card reveal" style="transition-delay:0.4s">
+      <span class="cocurr-icon">🏥</span>
+      <div class="cocurr-role">TCM Charity Volunteer</div>
+      <div class="cocurr-desc">Volunteer in Traditional Chinese Medical service for urban area communities in Kuantan, Pahang.</div>
+    </div>
+    <div class="cocurr-card reveal" style="transition-delay:0.5s">
+      <span class="cocurr-icon">📋</span>
+      <div class="cocurr-role">Class Committee</div>
+      <div class="cocurr-desc">Served as Class Monitor, Treasurer, and Secretary throughout high school.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<div class="contact-section">
+  <div class="section-header reveal" style="justify-content: center; border-bottom: none; margin-bottom: 1.5rem;">
+    <span class="section-num">06</span>
+    <div class="section-line" style="max-width: 60px;"></div>
+  </div>
+  <div class="contact-title reveal">Let's <em>Connect</em></div>
+  <p class="contact-sub reveal">Open to opportunities, collaborations, and conversations.</p>
+  <div class="contact-links reveal">
+    <a href="mailto:chinghuiqing@gmail.com" class="contact-link primary">✉ chinghuiqing@gmail.com</a>
+    <a href="https://github.com/hqching77" class="contact-link secondary" target="_blank">⚙ GitHub</a>
+  </div>
+</div>
+
+<footer>
+  © 2026 Ching Hui Qing · Built with HTML, CSS &amp; JS
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .research-card, .skill-card, .cocurr-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
